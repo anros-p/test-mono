@@ -12,7 +12,7 @@ function App() {
     }, []);
 
     return (
-        <div>
+        <div data-testId="bob">
             {weather?.map(w => (
                 <div>
                     <div>{w.date}</div>
