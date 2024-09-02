@@ -21,7 +21,12 @@ jobs:
               run: dotnet restore
             - name: Build
               working-directory: ./api
-              run: dotnet build --no-restore
+              run: dotnet build --no-restore -c Release
+            - name: Upload
+              uses: actions/upload-artifact@v4.4.0
+              with:
+                  name: dotnet-build
+                  path: ./api/bin/Release/net8.0
 
     build-web:
         runs-on: ubuntu-latest
@@ -38,3 +43,16 @@ jobs:
             - name: Build
               working-directory: ./web
               run: npm run build
+
+    run-e2e-tests:
+        runs-on: ubuntu-latest
+        needs: [build-web, build-dotnet]
+
+        steps:
+            - name: Download dotnet build
+              uses: actions/download-artifact@v4.1.8
+              with:
+                  name: dotnet-build
+                  path: api
+            
+            
