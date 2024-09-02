@@ -3,42 +3,38 @@
 
 name: Build
 
-on:
-  workflow_dispatch
+on: workflow_dispatch
 
 jobs:
-  build-dotnet:
+    build-dotnet:
+        runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  working-directory: ./api
+                  dotnet-version: 8.0.x
+            - name: Restore dependencies
+              working-directory: ./api
+              run: dotnet restore
+            - name: Build
+              working-directory: ./api
+              run: dotnet build --no-restore
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        working-directory: ./api
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      working-directory: ./api
-      run: dotnet restore
-    - name: Build
-      working-directory: ./api
-      run: dotnet build --no-restore
+    build-web:
+        runs-on: ubuntu-latest
 
-  build-web:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v4.0.3
-      with:
-        working-directory: ./web
-    - name: Restore dependencies
-      working-directory: ./web
-      run: npm ci
-    - name: Build
-      working-directory: ./web
-      run: npm build
-          
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4.0.3
+              with:
+                  working-directory: ./web
+            - name: Restore dependencies
+              working-directory: ./web
+              run: npm ci
+            - name: Build
+              working-directory: ./web
+              run: npm run build
