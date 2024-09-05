@@ -43,10 +43,21 @@ jobs:
             - name: Build
               working-directory: ./web
               run: npm run build
+            - name: Upload
+              uses: actions/upload-artifact@v4.4.0
+              with:
+                  name: web-build
+                  path: ./web/dist
 
     run-e2e-tests:
         runs-on: ubuntu-latest
         needs: [build-web, build-dotnet]
+
+        services:
+            mongo:
+                image: mongodb/mongodb-community-server:7.0.9-ubi9
+                ports:
+                    - 27017:27017
 
         steps:
             - name: Download dotnet build
@@ -54,5 +65,22 @@ jobs:
               with:
                   name: dotnet-build
                   path: api
-            
+            - name: Download web build
+              uses: actions/download-artifact@v4.1.8
+              with:
+                  name: web-build
+                  path: web
+            - name: Install mongosh
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y wget gnupg
+                  wget -q0 - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo apt-key add -
+                  sudo apt-get update
+                  sudo apt-get install -y mongodb-mongosh
+            - name: Query mongo status
+              run: |
+                  mongosh
+                  db.serverStatus()
+                  quit()
+                  
             
